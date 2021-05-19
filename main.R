@@ -1,0 +1,96 @@
+library(data.table)
+# Read the file
+data <- read.csv("total_cases.csv")
+# remove unused columns
+data <- subset(data, select= -c(World, European.Union, Europe, Asia, North.America, South.America, Africa, Oceania))
+# remove date
+df_total_cases <- subset(data, select= -date)
+# get subset dataframe for last row (last date)
+df_total_cases <- tail(df_total_cases, n=1)
+df_total_cases <- t(df_total_cases)
+colnames(df_total_cases) <- 'Pais'
+#extract py value
+py_value <- df_total_cases['Paraguay',1]
+py <- data.frame( Pais=py_value, row.names='Paraguay' )
+
+"
+    ##### 4 largest countries + py ######
+"
+
+#order with descending order
+df_higher_cases <- df_total_cases[order(df_total_cases, decreasing=TRUE),]
+# select first 4 rows
+df_higher_cases <- data.frame( Pais=df_higher_cases[1:4] )
+#append py
+df_higher_cases <- rbind(df_higher_cases,py)
+print(df_higher_cases)
+
+"
+    ##### 4 smallest countries + py ######
+"
+
+df_smallest_cases <- df_total_cases[order(df_total_cases),]
+df_smallest_cases <- data.frame( Pais=df_smallest_cases[1:4] )
+df_smallest_cases <- rbind(df_smallest_cases,py)
+print(df_smallest_cases)
+
+"
+    ##### cases per million section ######
+"
+
+locations <- read.csv("locations.csv")
+#deal with caracters in csv, so names are the same in the two dataframes
+locations$location <- gsub(' ', '.', locations$location)
+locations$location <- gsub('\'', '.', locations$location)
+locations$location <- gsub('-', '.', locations$location)
+locations$location <- gsub('[()]', '.', locations$location)
+# merge, common data is country names so rownames in df_total_cases is same as location column in locations,
+df_merge <- merge(x=df_total_cases, y=locations, by.x="row.names", by.y="location")
+# mew df with cases per million rounded, every country total cases from last late and his population
+df_cases_per_million <- data.frame( row.names=rownames(df_total_cases), casos_por_millon= round (df_merge$Pais*1000000/df_merge$population) )
+#extract py value
+py_value_per_million <- df_cases_per_million['Paraguay',1]
+py_per_million <- data.frame( Casos=py_value_per_million, row.names='Paraguay' )
+
+
+"
+    ##### 4 largest cases per million + py ######
+"
+
+#order with descending order, order returns indexes sorted , dataframe is not sorted
+indexes <- order(df_cases_per_million, decreasing=TRUE)
+# select the first 4 sorted indexes
+indexes <- indexes[1:4]
+# select sorted rows trough indexes, same to row names
+df_cases <- data.frame( Casos=df_cases_per_million[indexes,1] ,row.names = rownames(df_cases_per_million)[indexes] )
+#append py
+df_cases <- rbind(df_cases,py_per_million)
+print(df_cases)
+
+"
+    ##### 4 smallest cases per million + py ######
+"
+
+#order with ascending order, order returns indexes sorted , dataframe is not sorted
+indexes <- order(df_cases_per_million, decreasing=FALSE)
+# select the first 4 sorted indexes
+indexes <- indexes[1:4]
+# select sorted rows trough indexes, same to row names
+df_cases <- data.frame( Casos=df_cases_per_million[indexes,1] ,row.names = rownames(df_cases_per_million)[indexes] )
+#append py
+df_cases <- rbind(df_cases,py_per_million)
+print(df_cases)
+
+
+"
+    ##### Ejercicio e , last 10 days average all countries ######
+"
+
+df_average <- subset(data, select= -date)
+df_average <- tail(df_average, n=11)
+#apply diff function(to get cases per day) to all columns , margin = 1 is loop over rows, na.rm is to not count null
+df_average <- apply(df_average,2,diff,na.rm=TRUE)
+# mean and round
+df_average <- apply(df_average,2,mean,na.rm=TRUE)
+df_average <- sapply(df_average, round)
+print(df_average)
