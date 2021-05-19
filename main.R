@@ -1,4 +1,5 @@
 library(data.table)
+library(ggplot2)
 # Read the file
 data <- read.csv("total_cases.csv")
 # remove unused columns
@@ -93,4 +94,61 @@ df_average <- apply(df_average,2,diff,na.rm=TRUE)
 # mean and round
 df_average <- apply(df_average,2,mean,na.rm=TRUE)
 df_average <- sapply(df_average, round)
-print(df_average)
+# print(df_average)
+
+
+"
+    ##### Ejercicio f , correlation cases per day######
+"
+
+
+# last 15 rows cases per day
+df_for_corr <- subset(data, select= -date)
+df_for_corr <- tail(df_for_corr, n=16)
+# get cases per day
+df_for_corr <- data.frame(diff(as.matrix(df_for_corr)))
+# define new dataframe with colnames loaded
+df_corr <- data.frame(matrix(ncol = ncol(df_for_corr), nrow = 1))
+colnames(df_corr) <- colnames(df_for_corr)
+# correlation function per each column, default method is pearson, complete.obs to not computate null values
+for (i in colnames(df_for_corr)){
+    # temp is matrix[1,1]
+    temp <- cor(df_for_corr[i],df_for_corr$Paraguay, use='complete.obs')
+    df_corr[i] <- temp[1]
+}
+df_corr <- t(df_corr)
+# colnames(df_corr) <- 'Correlacion con respecto a paraguay'
+#order with ascending order, order returns indexes sorted , dataframe is not sorted
+indexes <- order(df_corr, decreasing=TRUE)
+# select the first 11 sorted indexes, cause paraguay will be 1st
+indexes <- indexes[1:11]
+# select sorted rows trough indexes, same to row names
+df_corr <- data.frame( Correlacion=df_corr[indexes,1] ,row.names = rownames(df_corr)[indexes] )
+print(tail(df_corr,10))
+
+
+"
+    ##### Ejercicio g , grafico ######
+"
+
+# raw data
+df_plot <- data
+# move date to another dataframe
+df_date <- subset(data, select= date)
+# delete first date, cause when performing diff the first row is deleted, drop=FALSE is to maintain dataframe structure
+df_date <- df_date[-c(1),,drop=FALSE]
+arr <- c('Paraguay', 'Brazil', 'Argentina', 'Peru', 'Colombia')
+# get specific columns
+df_plot <- subset(data, select= arr)
+# get cases per day, diff funct
+df_plot <- data.frame(diff(as.matrix(df_plot)))
+#add date column
+df_plot$date <- df_date$date
+# plot(df_plot$date, df_plot, main='Grafico de dispersion',)
+ggplot(df_plot, aes(x=date)) + geom_point(aes(y=Paraguay), color = "red") +
+  geom_point(aes(y=Brazil), color="yellow")+
+  geom_point(aes(y=Argentina), color="green2")+
+  geom_point(aes(y=Peru), color="blue4")+
+  geom_point(aes(y=Colombia), color="orange4")
+# ggplot(data = df_plot, aes(x = date, y = Paraguay))+ geom_point()
+#  xlab='fecha', ylab='diary cases '
