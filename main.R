@@ -137,18 +137,30 @@ df_plot <- data
 df_date <- subset(data, select= date)
 # delete first date, cause when performing diff the first row is deleted, drop=FALSE is to maintain dataframe structure
 df_date <- df_date[-c(1),,drop=FALSE]
-arr <- c('Paraguay', 'Brazil', 'Argentina', 'Peru', 'Colombia')
+arr <- c('Paraguay', 'Uruguay', 'Argentina', 'Japan', 'Colombia')
 # get specific columns
 df_plot <- subset(data, select= arr)
 # get cases per day, diff funct
 df_plot <- data.frame(diff(as.matrix(df_plot)))
 #add date column
 df_plot$date <- df_date$date
-# plot(df_plot$date, df_plot, main='Grafico de dispersion',)
-ggplot(df_plot, aes(x=date)) + geom_point(aes(y=Paraguay), color = "red") +
-  geom_point(aes(y=Brazil), color="yellow")+
-  geom_point(aes(y=Argentina), color="green2")+
-  geom_point(aes(y=Peru), color="blue4")+
-  geom_point(aes(y=Colombia), color="orange4")
-# ggplot(data = df_plot, aes(x = date, y = Paraguay))+ geom_point()
-#  xlab='fecha', ylab='diary cases '
+#replace NA with 0
+df_plot[is.na(df_plot)] <- 0
+#For line graphs, the data points must be grouped so that it knows which points to connect.
+# In this case, it is simple -- all points should be connected, so group=1.
+date <- paste('Desde el ', head(df_plot$date,1) , 'hasta el' , tail(df_plot$date,1) )
+ggplot(data=df_plot)+
+  geom_line(mapping=aes(x=date, y=Paraguay, color="Paraguay",group=1),size=1 ) +
+  geom_line(mapping=aes(x=date, y=Uruguay, color="Uruguay", group=1)) +
+  geom_line(mapping=aes(x=date, y=Argentina, color="Argentina", group=1)) +
+  geom_line(mapping=aes(x=date, y=Japan, color="Japon", group=1)) +
+  geom_line(mapping=aes(x=date, y=Colombia, color="Colombia", group=1)) +
+  scale_color_manual(values = c(
+    'Paraguay' = 'red',
+    'Uruguay' = 'yellow',
+    'Argentina' = 'green2',
+    'Japon' = 'blue4',
+    'Colombia' = 'orange3'
+    )) +
+  labs(color = 'Paises', title = 'Grafico de Dispersion', subtitle = date) +
+  labs(x = 'fecha', y = 'casos diarios')
