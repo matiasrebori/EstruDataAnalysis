@@ -1,4 +1,4 @@
-library(data.table)
+# library(data.table)
 library(ggplot2)
 # Read the file
 data <- read.csv("total_cases.csv")
@@ -94,11 +94,15 @@ df_average <- apply(df_average,2,diff,na.rm=TRUE)
 # mean and round
 df_average <- apply(df_average,2,mean,na.rm=TRUE)
 df_average <- sapply(df_average, round)
-# print(df_average)
+# make it dataframe structure
+df_average <- data.frame( df_average )
+# rename column name
+colnames(df_average) <- 'Promedio diario de casos'
+print(head(df_average))
 
 
 "
-    ##### Ejercicio f , correlation cases per day######
+    ##### Ejercicio f , correlation cases per day ######
 "
 
 
