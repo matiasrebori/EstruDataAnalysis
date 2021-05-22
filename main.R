@@ -47,7 +47,7 @@ locations$location <- gsub('-', '.', locations$location)
 locations$location <- gsub('[()]', '.', locations$location)
 # merge, common data is country names so rownames in df_total_cases is same as location column in locations,
 df_merge <- merge(x=df_total_cases, y=locations, by.x="row.names", by.y="location")
-# mew df with cases per million rounded, every country total cases from last late and his population
+# new df with cases per million rounded, every country total cases from last late and his population
 df_cases_per_million <- data.frame( row.names=rownames(df_total_cases), casos_por_millon= round (df_merge$Pais*1000000/df_merge$population) )
 #extract py value
 py_value_per_million <- df_cases_per_million['Paraguay',1]

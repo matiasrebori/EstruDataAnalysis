@@ -1,10 +1,7 @@
 import pandas as pd
 import numpy as np
-# for sqrt in standard deviation
-import math
 # to sort dict
 import operator
-import matplotlib.pyplot as plt
 # Read the file
 df_total_cases = pd.read_csv("total_cases.csv", low_memory=False)
 # list of anything that isn't a country
@@ -111,6 +108,7 @@ def rounded_mean(series, n):
     mean = round(x/n)
     return mean
 
+
 # get subset dataframe with last 11 rows to process
 df_average = df_total_cases.tail(11)
 # index numbers for getting dates
@@ -134,7 +132,7 @@ for i in df_average.columns:
         # calculate diary cases per country: date 2 diary cases = date 2 total cases - date 1 total cases
         s_diary_cases[j] = df_average[i][j] - df_average[i][j-1]
     # find de average per country
-    s_mean[i] = rounded_mean(s_diary_cases.to_list(),len(s_diary_cases.index))
+    s_mean[i] = rounded_mean(s_diary_cases.to_list(), len(s_diary_cases.index))
 # print all rows
 # pd.set_option('display.max_rows', None)
 print(s_mean)
@@ -143,89 +141,60 @@ print(s_mean)
     ##### Ejercicio f , correlation cases per day######
 '''
 
-# pearson correlation formula is:
-# cov(x,y) / sd(x)*sd(y) . cov is covariance between x and y , std means standard deviation
-
-
-def corr_formula(x, y):
-    return np.cov(x, y) / (np.std(x) * np.std(y))
-
-def variance(data, ddof=0):
-    n = len(data)
-    mean = sum(data) / n
-    return sum((x - mean) ** 2 for x in data) / (n - ddof)
-
-
-def stdev(data):
-    var = variance(data)
-    std_dev = math.sqrt(var)
-    return std_dev
-
 
 # last 15 rows cases per day
 df_corr = data.tail(16).diff()
 # delete null row
 df_corr = df_corr.drop(index=df_corr.index.start)
-# result series
-s_corr = pd.Series(index=df_corr.columns, dtype='float64', name='correlacion')
-x = df_corr['Argentina'].array
-y = df_corr['Paraguay'].array
-corr = np.cov(x,y)
-corr = corr[1,0]
-print(corr)
-stx = stdev(x)
-sty = np.std(y)
-print(stx)
-print(sty)
-print( corr / (stx*sty))
+# pearson correlation formula, let be xi , yi individual sample point
+# numerator is sum from n=1 to n ( ( xi - mean(x )*( yi - mean(y) ) )
+# denominator is sqrt( std(x)*std(y) ) where st(x) d is sum from i = i to n ( xi - mean(x) )^2
 
-def covariance(x, y):
-    # Finding the mean of the series x and y
-    mean_x = sum(x)/float(len(x))
-    mean_y = sum(y)/float(len(y))
-    # Subtracting mean from the individual elements
-    sub_x = [i - mean_x for i in x]
-    sub_y = [i - mean_y for i in y]
-    numerator = sum([sub_x[i]*sub_y[i] for i in range(len(sub_x))])
-    denominator = len(x)-1
-    cov = numerator/denominator
-    return cov
+
 def correlation(x, y):
+    # this calculates correlation between to data arrays
+    x = x
+    n = len(x)
     # Finding the mean of the series x and y
     mean_x = sum(x)/float(len(x))
-    mean_y = sum(y)/float(len(y))
-    # Subtracting mean from the individual elements
-    sub_x = [i-mean_x for i in x]
-    sub_y = [i-mean_y for i in y]
-    # covariance for x and y
-    numerator = sum([sub_x[i]*sub_y[i] for i in range(len(sub_x))])
-    # Standard Deviation of x and y
-    std_deviation_x = sum([sub_x[i]**2.0 for i in range(len(sub_x))])
-    std_deviation_y = sum([sub_y[i]**2.0 for i in range(len(sub_y))])
-    # squaring by 0.5 to find the square root
-    denominator = (std_deviation_x*std_deviation_y)**0.5 # short but equivalent to (std_deviation_x**0.5) * (std_deviation_y**0.5)
-    cor = numerator/denominator
-    print(numerator)
-    print(std_deviation_x)
-    print(std_deviation_y)
-    return cor
+    mean_y = sum(y) / float(len(y))
+    cov = 0
+    std_x = 0
+    std_y = 0
+    for i in range(n):
+        cov += (x[i]-mean_x)*(y[i]-mean_y)
+        std_x += (x[i]-mean_x)**2
+        std_y += (y[i] - mean_y) ** 2
+    std_x = std_x**0.5
+    std_y = std_y ** 0.5
+    denominator = std_x*std_y
+
+    def safe_div(numerator, denominator):
+        if denominator == 0:
+            return 0
+        else:
+            return numerator / denominator
+
+    return safe_div(cov, denominator)
 
 
+def corr(df, sample):
+    # apply correlation to every column
+    # columns name to iterate
+    columns_name = df.columns.to_list()
+    # series that store correlation
+    s_result = pd.Series(index=columns_name, dtype='float64')
+    for i in columns_name:
+        # calculate correlation for every country
+        s_result[i] = correlation(df[i].array, df[sample].array)
+    return s_result
 
-print('some space')
-# print(covariance(x,y))
-print(correlation(x,y))
 
-# perform correlation on every column with py
-# y = df_corr['Paraguay'].to_numpy()
-# for i in df_corr.columns:
-#     x = df_corr[i].to_numpy()
-#     s_corr[i] = np.cov(x, y) / (np.std(x) * np.std(y))
-#
-# s_corr['Paraguay'] = 0
-# print('Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.')
-# print(s_corr.nlargest(10))
-
+s_corr = corr(df_corr, 'Paraguay')
+# hide paraguay result when doing nlargest
+s_corr['Paraguay'] = -1
+print('Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.')
+print(s_corr.nlargest(10))
 
 '''
     ##### Ejercicio g , grafico ######
@@ -233,7 +202,7 @@ print(correlation(x,y))
 arr = ['Paraguay', 'Brazil', 'Argentina', 'Bolivia', 'Uruguay']
 df_plot = pd.DataFrame(dtype='float64')
 for i in arr:
-    df_plot[i]=df_total_cases[i]
+    df_plot[i] = df_total_cases[i]
 df_plot = df_plot.diff()
 df_plot.insert(loc=0, column='date', value=df_total_cases['date'])
 df_plot.plot(x='date', y=arr)

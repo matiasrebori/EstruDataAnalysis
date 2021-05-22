@@ -115,7 +115,7 @@ print(s_mean)
 '''
 # last 15 rows cases per day
 df_corr = data.tail(16).diff()
-#delete null row
+# delete null row
 df_corr = df_corr.drop(index=df_corr.index.start)
 # result series
 s_corr = pd.Series(index=df_corr.columns, dtype='float64', name='correlacion')
@@ -123,7 +123,7 @@ s_corr = pd.Series(index=df_corr.columns, dtype='float64', name='correlacion')
 for i in df_corr.columns:
     s_corr[i] = df_corr[i].corr(df_corr['Paraguay'])
 s_corr['Paraguay'] = 0
-print('Buscar cuales son los países que tienen la mayor correlación, con respecto a su curva de casos positivos en los últimos 15 días, con respecto a Paraguay.')
+print('Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.')
 print(s_corr.nlargest(10))
 # df_corr = df_corr.corr().loc[:,'Paraguay']
 # print(df_corr.nlargest(10))
@@ -134,7 +134,7 @@ print(s_corr.nlargest(10))
 arr = ['Paraguay', 'Brazil', 'Argentina', 'Bolivia', 'Uruguay']
 df_plot = pd.DataFrame(dtype='float64')
 for i in arr:
-    df_plot[i]=df_total_cases[i]
+    df_plot[i] = df_total_cases[i]
 df_plot = df_plot.diff()
 df_plot.insert(loc=0, column='date', value=df_total_cases['date'])
 df_plot.plot(x='date', y=arr)

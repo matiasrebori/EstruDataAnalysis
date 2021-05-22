@@ -136,7 +136,6 @@ df_corr[is.na(df_corr)] <- 0
 # get cases per day
 df_corr <- data.frame(diff(as.matrix(df_corr)))
 # correlation function per each column, method is pearson
-print(cov(df_corr$Argentina,df_corr$Paraguay))
 df_corr <- apply(df_corr,2, corr_formula, df_corr$Paraguay)
 # make it dataframe structure
 df_corr <- data.frame( df_corr )
