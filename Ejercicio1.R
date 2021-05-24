@@ -1,4 +1,4 @@
-# library(data.table)
+library(doBy)
 library(ggplot2)
 # Read the file
 data <- read.csv("total_cases.csv")
@@ -12,33 +12,38 @@ df_total_cases <- t(df_total_cases)
 colnames(df_total_cases) <- 'Pais'
 #extract py value
 py_value <- df_total_cases['Paraguay',1]
-py <- data.frame( Pais=py_value, row.names='Paraguay' )
+py <- data.frame( Casos=py_value, row.names='Paraguay' )
 
-"
-    ##### 4 largest countries + py ######
-"
 
-#order with descending order
-df_higher_cases <- df_total_cases[order(df_total_cases, decreasing=TRUE),]
-# select first 4 rows
-df_higher_cases <- data.frame( Pais=df_higher_cases[1:4] )
-#append py
-df_higher_cases <- rbind(df_higher_cases,py)
-print(df_higher_cases)
-
-"
     ##### 4 smallest countries + py ######
-"
 
-df_smallest_cases <- df_total_cases[order(df_total_cases),]
-df_smallest_cases <- data.frame( Pais=df_smallest_cases[1:4] )
+# get 4 samllest
+df_smallest_cases <- df_total_cases[which.minn(df_total_cases,4),]
+# insert in a dataframe structure
+df_smallest_cases <- data.frame( Casos=df_smallest_cases )
+#append py
 df_smallest_cases <- rbind(df_smallest_cases,py)
+print('Los 4 países con menores valores de total de casos positivos. + Py')
 print(df_smallest_cases)
 
-"
-    ##### cases per million section ######
-"
 
+
+    ##### 4 largest countries + py ######
+
+
+# get 4 largest
+df_higher_cases <- df_total_cases[which.maxn(df_total_cases,4),]
+# insert in a dataframe structure
+df_higher_cases <- data.frame( Casos=df_higher_cases )
+#append py
+df_higher_cases <- rbind(df_higher_cases,py)
+print('Los 4 países con mayores valores de total de casos positivos. + Py')
+print(df_higher_cases)
+
+
+    ##### cases per million section ######
+
+# read csv
 locations <- read.csv("locations.csv")
 #deal with caracters in csv, so names are the same in the two dataframes
 locations$location <- gsub(' ', '.', locations$location)
@@ -48,44 +53,39 @@ locations$location <- gsub('[()]', '.', locations$location)
 # merge, common data is country names so rownames in df_total_cases is same as location column in locations,
 df_merge <- merge(x=df_total_cases, y=locations, by.x="row.names", by.y="location")
 # new df with cases per million rounded, every country total cases from last late and his population
-df_cases_per_million <- data.frame( row.names=rownames(df_total_cases), casos_por_millon= round (df_merge$Pais*1000000/df_merge$population) )
+df_cases_per_million <- data.frame( row.names=rownames(df_total_cases), Casos= round (df_merge$Pais*1000000/df_merge$population) )
 #extract py value
 py_value_per_million <- df_cases_per_million['Paraguay',1]
 py_per_million <- data.frame( Casos=py_value_per_million, row.names='Paraguay' )
 
 
-"
+
     ##### 4 largest cases per million + py ######
-"
 
-#order with descending order, order returns indexes sorted , dataframe is not sorted
-indexes <- order(df_cases_per_million, decreasing=TRUE)
-# select the first 4 sorted indexes
-indexes <- indexes[1:4]
-# select sorted rows trough indexes, same to row names
-df_cases <- data.frame( Casos=df_cases_per_million[indexes,1] ,row.names = rownames(df_cases_per_million)[indexes] )
-#append py
+# get nlargest indexes
+sorted <- which.maxn(df_cases_per_million[,'Casos'],4)
+# make dataframe
+df_cases <- data.frame( Casos=df_cases_per_million[sorted,1] ,row.names = rownames(df_cases_per_million)[sorted] )
+# append py
 df_cases <- rbind(df_cases,py_per_million)
+print('los 4 países con mayores casos positivos por millón de habitantes. + Py')
 print(df_cases)
 
-"
+
+
     ##### 4 smallest cases per million + py ######
-"
 
-#order with ascending order, order returns indexes sorted , dataframe is not sorted
-indexes <- order(df_cases_per_million, decreasing=FALSE)
-# select the first 4 sorted indexes
-indexes <- indexes[1:4]
-# select sorted rows trough indexes, same to row names
-df_cases <- data.frame( Casos=df_cases_per_million[indexes,1] ,row.names = rownames(df_cases_per_million)[indexes] )
-#append py
+
+sorted <- which.minn(df_cases_per_million[,'Casos'],4)
+df_cases <- data.frame( Casos=df_cases_per_million[sorted,1] ,row.names = rownames(df_cases_per_million)[sorted] )
 df_cases <- rbind(df_cases,py_per_million)
+print('los 4 países con menores casos positivos por millón de habitantes. + Py')
 print(df_cases)
 
 
-"
+
     ##### Ejercicio e , last 10 days average all countries ######
-"
+
 
 df_average <- subset(data, select= -date)
 df_average <- tail(df_average, n=11)
@@ -98,12 +98,13 @@ df_average <- sapply(df_average, round)
 df_average <- data.frame( df_average )
 # rename column name
 colnames(df_average) <- 'Promedio diario de casos'
+print('Promedio diario de casos positivos de los últimos 10 días de todos los países.')
 print(head(df_average))
 
 
-"
+
     ##### Ejercicio f , correlation cases per day ######
-"
+
 
 
 # last 15 rows cases per day
@@ -128,13 +129,14 @@ indexes <- order(df_corr, decreasing=TRUE)
 indexes <- indexes[1:11]
 # select sorted rows trough indexes, same to row names
 df_corr <- data.frame( Correlacion=df_corr[indexes,1] ,row.names = rownames(df_corr)[indexes] )
+print('Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.')
 print(tail(df_corr,10))
 
 
-"
-    ##### Ejercicio g , grafico ######
-"
 
+    ##### Ejercicio g , grafico ######
+
+print('Grafico')
 # raw data
 df_plot <- data
 # move date to another dataframe
