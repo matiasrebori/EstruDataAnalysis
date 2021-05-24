@@ -18,6 +18,23 @@ $ pip3 install matplotlib
 ```console
 $ python3 Ejercicio1.py
 ```
+## Ejecutar en R
+* Instalar R
+```console
+$ sudo apt install r-base
+```
+* Instalar doBy
+```console
+$ install.packages ('doBy')
+```
+* Instalar ggplot2
+```console
+$ install.packages ('ggplot2')
+```
+* Ejecutar script ( estar en la carpeta del archivo )
+```console
+$ Rscript Ejercicio1.R
+```
 ## Ejecutar en Ruby
 * Instalar Ruby
 ```console
@@ -38,3 +55,13 @@ $ gem install --pre matplotlib
 * Ejecutar script ( estar en la carpeta del archivo )
 ```console
 $ Ruby Ejercicio1.rb
+```
+## Ejecutar en Lisp
+* Instalar Lisp
+```console
+$ sudo apt-get install clisp
+```
+* Ejecutar script ( estar en la carpeta del archivo )
+```console
+$ clisp Ejercicio2.lisp
+```
