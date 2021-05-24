@@ -53,17 +53,36 @@
 ;crear lista numerica
 (setf v1 
     (list 8 5 2 7 3 9 1 4 6 ))
-(setq result (min_value v1))
+
+(print "Sea el array")
+(write v1)
+
+(print "Sin funciones nativas:")
 
 ; ejecutar funciones 
+(setq result (max_value v1))
 (print "El mayor es:")
 (write result)
 
-(setq result (max_value v1))
+(setq result (min_value v1))
 (print "El menor es:")
 (write result)
 
 (setq result (prom v1))
 (print "El promedio de elementos es:")
+(write result)
+
+(print "Con funciones nativas:")
+
+(setq result (apply 'max v1))
+(print "El mayor es:")
+(write result)
+
+(setq result (apply 'min v1))
+(print "El menor es:")
+(write result)
+
+(setq result (prom v1))
+(print "El mayor es:")
 (write result)
 
