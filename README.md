@@ -1,5 +1,6 @@
 # EstruDataAnalysis
 Analisis de Datos para la materia estructura de los lenguajes de programacion
+Mirar Guia_Trabajo_Practico para informacion sobre el problema resuelto
 
 ## Ejecutar en Python 
 * Instalar Python
