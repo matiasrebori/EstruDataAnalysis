@@ -1,8 +1,10 @@
 require 'daru'
 
+# escribir el algoritmo
+# realizando sus propias funciones (busqueda, minimo, maximo, promedio y correlacion).
+
 # read the file
 data = Daru::DataFrame.from_csv('total_cases.csv')
-
 # get number of rows, shape return array with number of rows and ncols
 nrows = data.shape[0] - 1
 # get vector from dataframe last row (last date)
@@ -112,11 +114,6 @@ df_cases_per_day.delete_row(first_row)
 # loop over every column and do diff
 columns = df_for_cases.vectors
 columns.each do |i|
-  # cast the Daru::Array to Numo::NArray to use diff function
-  # x = Numo::NArray.cast(df_for_cases[i])
-  # # save the result in his corresponding column
-  # df_cases_per_day[i] = x.diff
-  # Daru::Maths::Statistics::Vector diff
   df_cases_per_day[i] = df_for_cases[i].diff
 end
 
@@ -124,58 +121,73 @@ end
 # last 10 days average all countries section
 # ---------------------
 
+def rounded_mean(arr)
+  cant = arr.count
+  total = arr.sum
+  if cant != 0
+    res = total / cant
+    res = res.round
+  else
+    res = 0
+  end
+  res
+end
+
 # apply mean, round and rename
-df_average = df_cases_per_day.tail(10).mean.round.rename('Promedio')
+df_average = df_cases_per_day.tail(10).rename('Promedio')
+# apply mean
 puts 'Promedio diario de casos positivos de los últimos 10 días de todos los países'
-puts df_average.head.inspect
+# clone structure
+df_avg = df_total_cases.clone
+# get indexes
+columns = df_avg.index.to_a
+# iterate over every column
+columns.each do |i|
+  df_avg[i] = rounded_mean df_average[i]
+end
+puts df_avg.inspect
 
 # ---------------------
 #  correlation, cases per day
 # ---------------------
 
-# *********-slower function-************************
+def correlation(x, y)
+  # this calculates correlation between to data arrays
+  n = x.count
+  # Finding the mean of the series x and y
+  mean_x = x.sum / n
+  mean_y = y.sum / n
+  cov = 0
+  std_x = 0
+  std_y = 0
+  range = [*0..n - 1]
+  range.each do |i|
+    cov += (x[i] - mean_x) * (y[i] - mean_y)
+    std_x += (x[i] - mean_x)**2
+    std_y += (y[i] - mean_y)**2
+  end
+  std_x **= 0.5
+  std_y **= 0.5
+  numerator = cov
+  denominator = std_x * std_y
+  if denominator != 0
+    return numerator / denominator
+  else
+    return 0
+  end
+end
 
-# # calculate correlation matrix
-# df_for_corr = df_cases_per_day.tail(15)
-# corr_matrix = df_for_corr.correlation
-# puts corr_matrix
-# # get countries with respect to paraguay
-# corr = corr_matrix['Paraguay']
-
-# *********-end slower function-********************
-
-# ***********-faster function-********************
 # get columns
 df_for_corr = df_cases_per_day.tail(15)
 columns = df_for_corr.vectors
-# clone previus vector structure
-corr = df_average.clone_structure.rename('Correlacion')
-# temporal dataframe to store paraguay data and the other country
-temp = Daru::DataFrame.new
-temp['Paraguay'] = Daru::Vector.new(df_for_corr['Paraguay'])
-# add one country, calculate correlation, delete country
-columns.each do |i|
-  temp[i] = Daru::Vector.new(df_for_corr[i])
-  # temp.correlation return a 2x2 Daru::Dataframe
-  corr_matrix = temp.correlation
-  corr_number = corr_matrix['Paraguay']
-  corr_number = corr_number[i]
-  corr[i] = corr_number
-  if i != 'Paraguay'
-    temp.delete_vector(i)
-  end
-end
-# ***********-end faster function-********************
-
-# set paraguay with respect to paraguay to -1
-corr['Paraguay'] = -1
-corr = corr.replace_nils(0)
-# sort descendent
-corr = corr.sort(ascending: false)
-# get first 15 elements
-corr = corr.head(15)
+# clone previous vector structure
+df_corr = df_total_cases.clone_structure
+df_corr.rename 'Correlacion'
+# iterate
+columns.each { |i| df_corr[i] = correlation(df_for_corr['Paraguay'], df_for_corr[i]) }
+df_corr['Paraguay'] = -1
 puts 'Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.'
-puts corr.inspect
+puts df_corr.sort(ascending: false).head(15).inspect
 
 # ---------------------
 # Graph
