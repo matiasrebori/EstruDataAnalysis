@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+# escribir el algoritmo
+# realizando sus propias funciones (busqueda, minimo, maximo, promedio y correlacion).
 # to sort dict
 import operator
 # Read the file
@@ -48,16 +51,18 @@ def nlargesmall_est(largest, serie, n):
 
 
 '''
+    ##### 4 smallest countries + py ######
+'''
+print('Los 4 países con menores valores de total de casos positivos. + Py')
+nlargesmall_est(False, df, 4)
+
+
+'''
     ##### 4 largest countries + py ######
 '''
 print('Los 4 países con mayores valores de total de casos positivos. + Py')
 nlargesmall_est(True, df, 4)
 
-'''
-    ##### 4 smallest countries + py ######
-'''
-print('Los 4 países con menores valores de total de casos positivos. + Py')
-nlargesmall_est(False, df, 4)
 
 '''
     ##### cases per million section ######
@@ -206,5 +211,5 @@ for i in arr:
 df_plot = df_plot.diff()
 df_plot.insert(loc=0, column='date', value=df_total_cases['date'])
 df_plot.plot(x='date', y=arr)
-# plt.show()
-# print(df_plot)
+plt.show()
+

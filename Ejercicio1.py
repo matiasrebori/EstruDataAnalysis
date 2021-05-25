@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+# Matias Gabriel Martinez Rebori
 # Read the file
 df_total_cases = pd.read_csv("total_cases.csv", low_memory=False)
 # list of anything that isn't a country
