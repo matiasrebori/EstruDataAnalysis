@@ -1,5 +1,5 @@
 require 'daru'
-
+# daru no tiene un equivalente nlargest, la funcion index_of_min no funciona bien
 # read the file
 data = Daru::DataFrame.from_csv('total_cases.csv')
 
@@ -33,12 +33,12 @@ puts df_smallest.inspect
 # ---------------------
 # 4 largest countries + py
 # ---------------------
-
-# sort descendent
-df_highest = df_total_cases.sort(ascending: false)
+#
+# get n largest indexes
+indexes = df_total_cases.index_of_max 4
+# slice
+df_highest = df_total_cases[*indexes]
 df_highest.rename 'Casos'
-# get first 4 elements
-df_highest = df_highest.head(4)
 # concat py value
 df_highest.concat(df_total_cases['Paraguay'], 'Paraguay')
 # print
@@ -65,10 +65,10 @@ df_cases_per_million = df_cases_per_million.round
 # 4 largest cases per million + py
 # ---------------------
 
-# sort descendent
-df_highest = df_cases_per_million.sort(ascending: false)
-# get first 4 elements
-df_highest = df_highest.head(4)
+# get n largest indexes
+indexes = df_cases_per_million.index_of_max 4
+# slice
+df_highest = df_cases_per_million[*indexes]
 # concat py value
 df_highest.concat(df_cases_per_million['Paraguay'], 'Paraguay')
 # print
