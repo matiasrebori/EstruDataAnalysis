@@ -1,5 +1,9 @@
 #library to plot
 library(ggplot2)
+# escribir el algoritmo
+# realizando sus propias funciones (busqueda, minimo, maximo, promedio y correlacion).
+# busqueda es solo a nivel vector por lo tanto mi approach no necesita funcion aparte para busqueda
+
 # Read the file
 data <- read.csv("total_cases.csv")
 # remove unused columns
@@ -123,6 +127,7 @@ print(head(df_average))
 
 # pearson correlation formula is:
 # cov(x,y) / sd(x)*sd(y) . cov is covariance between x and y , sd means standard deviation
+# nota: podia copiar el codigo de python y adaptar rapidamente, hice otro approach mirando la formula, la documentacion y viendo si las funciones eran compatibles
 corr_formula <- function(x,y){
   corr <- cov(x,y) / ( sd(x)*sd(y) )
   # r returns the last line if no explicit return is defined
@@ -142,7 +147,8 @@ df_corr <- data.frame( df_corr )
 #order with descending order, order returns indexes sorted , dataframe is not sorted
 indexes <- order(df_corr, decreasing=TRUE)
 # select the first 16 sorted indexes start by 2, py will be 1st , result is 15
-indexes <- indexes[2:16]
+corr_number <- 11
+indexes <- indexes[2:corr_number]
 # select sorted rows trough indexes, same to row names
 df_corr <- data.frame( Correlacion=df_corr[indexes,1] ,row.names = rownames(df_corr)[indexes] )
 print('Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.')

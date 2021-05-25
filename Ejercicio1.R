@@ -1,5 +1,8 @@
+# library for nlargest equivalent, maxn
 library(doBy)
+# library to plot
 library(ggplot2)
+
 # Read the file
 data <- read.csv("total_cases.csv")
 # remove unused columns
@@ -126,7 +129,8 @@ df_corr <- t(df_corr)
 #order with ascending order, order returns indexes sorted , dataframe is not sorted
 indexes <- order(df_corr, decreasing=TRUE)
 # select the first 11 sorted indexes, cause paraguay will be 1st
-indexes <- indexes[1:11]
+corr_number <- 11
+indexes <- indexes[1:corr_number]
 # select sorted rows trough indexes, same to row names
 df_corr <- data.frame( Correlacion=df_corr[indexes,1] ,row.names = rownames(df_corr)[indexes] )
 print('Los países que tienen la mayor correlación en los últimos 15 días, con respecto a Paraguay.')
